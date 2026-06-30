@@ -673,7 +673,7 @@ a { color: inherit; text-decoration: none; }
 )
 
 html(
-    """
+    f"""
 <aside class="side-nav">
   <a class="brand" href="#top">
     <span class="brand-mark">G</span>
