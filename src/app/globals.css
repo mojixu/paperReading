@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+:root {
+  --pku-red: #8c1515;
+  --deep-navy: #0b1020;
+  --ink-black: #111827;
+  --ivory-white: #f8f5ef;
+  --paper-gray: #f3f0e8;
+  --academic-gold: #c9a227;
+  --signal-blue: #3b82f6;
+  --soft-green: #10b981;
+  --warning-amber: #f59e0b;
+  --foreground: #111827;
+  --background: #f8f5ef;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", Arial, system-ui, sans-serif;
+  --font-serif: "Noto Serif SC", "Source Han Serif SC", "SimSun", Georgia, serif;
+  --font-mono: "JetBrains Mono", "IBM Plex Mono", Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--ivory-white);
+}
+
+body {
+  margin: 0;
+  background: var(--ivory-white);
+  color: var(--foreground);
+  font-family: "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", "PingFang SC", Arial, system-ui, sans-serif;
+  line-height: 1.7;
+}
+
+::selection {
+  background: rgba(140, 21, 21, 0.18);
+  color: #0b1020;
+}
+
+.section-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.section-padding {
+  padding: 112px 0;
+}
+
+.glass-card {
+  border: 1px solid rgba(140, 21, 21, 0.12);
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 24px 70px rgba(17, 24, 39, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.dark-glass-card {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(18px);
+}
+
+.token-glow-red {
+  box-shadow: 0 0 32px rgba(140, 21, 21, 0.45);
+}
+
+.token-glow-green {
+  box-shadow: 0 0 32px rgba(16, 185, 129, 0.35);
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 88%);
+}
+
+.academic-heading {
+  font-family: "Noto Serif SC", "Source Han Serif SC", "SimSun", Georgia, serif;
+}
+
+.mono-token {
+  font-family: "JetBrains Mono", "IBM Plex Mono", Consolas, monospace;
+}
+
+.anchor-offset {
+  scroll-margin-top: 88px;
+}
+
+@media (max-width: 768px) {
+  .section-shell {
+    width: min(100% - 24px, 1180px);
+  }
+
+  .section-padding {
+    padding: 76px 0;
+  }
+}
