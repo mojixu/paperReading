@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import re
+from textwrap import dedent
+
 import streamlit as st
 
 
@@ -32,7 +35,9 @@ METRICS = {
 
 
 def html(block: str) -> None:
-    st.markdown(block, unsafe_allow_html=True)
+    cleaned = dedent(block).strip()
+    cleaned = re.sub(r"(?m)^[ \t]{4,}(?=</?[A-Za-z])", "", cleaned)
+    st.html(cleaned)
 
 
 def interpolate_budget(value: int, start: float, end: float) -> float:
