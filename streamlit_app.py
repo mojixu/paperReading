@@ -730,7 +730,7 @@ html(
     <p>这篇工作把 RAG 的核心从“检索器外挂”推进到“生成过程中的信息规划”。</p>
   </div>
   <div class="grid grid-3">
-    {card("Paper", "Retrieval as Generation: A Unified Framework with Self-Triggered Information Planning。论文定位于 ACL 2026，聚焦开放域问答中的自触发检索。", "01")}
+    {card("Paper", "Retrieval as Generation: A Unified Framework with Self-Triggered Information Planning。论文发表于 ACL 2026，聚焦开放域问答中的自触发检索。", "01")}
     {card("Core Question", "模型什么时候应该检索、应该检索什么、什么时候应该停止？这三个问题共同构成了检索增强生成的控制难题。", "02")}
     {card("Key Insight", "GRIP 将检索控制嵌入自回归解码过程，让检索从外部流程变成可学习、可解释、可终止的生成行为。", "03")}
   </div>
