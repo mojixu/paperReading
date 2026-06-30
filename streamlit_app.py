@@ -114,7 +114,7 @@ header {
 .block-container {
   max-width: none;
   padding-top: 1rem;
-  padding-left: 16rem;
+  padding-left: 16.25rem;
   padding-right: clamp(1.25rem, 4vw, 4rem);
   padding-bottom: 4rem;
 }
@@ -211,9 +211,9 @@ a { color: inherit; text-decoration: none; }
 .navlinks a {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  min-height: 3rem;
-  padding: 0.52rem 0.55rem;
+  gap: 0.58rem;
+  min-height: 2.72rem;
+  padding: 0.42rem 0.52rem;
   border: 1px solid transparent;
   border-radius: 14px;
   color: #374151;
@@ -233,14 +233,14 @@ a { color: inherit; text-decoration: none; }
   display: inline-grid;
   flex: 0 0 auto;
   place-items: center;
-  width: 1.82rem;
-  height: 1.82rem;
+  width: 1.68rem;
+  height: 1.68rem;
   border: 1px solid rgba(140, 21, 21, 0.16);
   border-radius: 999px;
   background: #F3F0E8;
   color: var(--red);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 900;
 }
 
@@ -261,13 +261,13 @@ a { color: inherit; text-decoration: none; }
 .nav-label small {
   margin-top: 0.12rem;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   font-weight: 700;
 }
 
 .nav-foot {
   margin: 0;
-  padding: 0.8rem 0.75rem;
+  padding: 0.68rem 0.7rem;
   border: 1px solid rgba(201, 162, 39, 0.22);
   border-radius: 16px;
   background: rgba(201, 162, 39, 0.08);
@@ -285,15 +285,16 @@ a { color: inherit; text-decoration: none; }
 .nav-foot p {
   margin: 0;
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   line-height: 1.55;
 }
 
 .hero {
   position: relative;
   overflow: hidden;
+  max-width: 1180px;
   min-height: calc(100vh - 2rem);
-  margin: 0;
+  margin: 0 auto;
   padding: clamp(3rem, 8vw, 5.2rem) clamp(1.2rem, 6vw, 4.5rem) 4.6rem;
   border-radius: 28px;
   color: white;
@@ -402,7 +403,10 @@ a { color: inherit; text-decoration: none; }
 }
 
 .section {
+  max-width: 1180px;
+  margin: 0 auto;
   padding: 4.6rem 0 0.6rem;
+  scroll-margin-top: 1.2rem;
 }
 
 .section-head {
@@ -521,6 +525,13 @@ a { color: inherit; text-decoration: none; }
 
 .wide-panel {
   padding: 1.4rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.budget-panel {
+  max-width: 1180px;
+  margin: 1rem auto 0;
 }
 
 .bar-row {
@@ -601,7 +612,7 @@ a { color: inherit; text-decoration: none; }
 .anchor {
   display: block;
   height: 1px;
-  transform: translateY(-4rem);
+  scroll-margin-top: 1.2rem;
 }
 
 @media (max-width: 900px) {
@@ -612,8 +623,8 @@ a { color: inherit; text-decoration: none; }
   .grid-3, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .grid-2 { grid-template-columns: 1fr; }
   .side-nav {
-    position: sticky;
-    top: 0.6rem;
+    position: relative;
+    top: auto;
     bottom: auto;
     left: auto;
     width: auto;
@@ -657,9 +668,12 @@ html(
     <a href="#overview"><span class="nav-index">01</span><span class="nav-label"><strong>概览</strong><small>Overview</small></span></a>
     <a href="#problem"><span class="nav-index">02</span><span class="nav-label"><strong>问题</strong><small>Problem</small></span></a>
     <a href="#method"><span class="nav-index">03</span><span class="nav-label"><strong>方法</strong><small>Method</small></span></a>
-    <a href="#experiments"><span class="nav-index">04</span><span class="nav-label"><strong>实验</strong><small>Experiments</small></span></a>
-    <a href="#review"><span class="nav-index">05</span><span class="nav-label"><strong>综述</strong><small>Review</small></span></a>
+    <a href="#training"><span class="nav-index">04</span><span class="nav-label"><strong>训练</strong><small>Training</small></span></a>
+    <a href="#experiments"><span class="nav-index">05</span><span class="nav-label"><strong>实验</strong><small>Experiments</small></span></a>
     <a href="#reflection"><span class="nav-index">06</span><span class="nav-label"><strong>思考</strong><small>Reflection</small></span></a>
+    <a href="#review"><span class="nav-index">07</span><span class="nav-label"><strong>综述</strong><small>Literature</small></span></a>
+    <a href="#fit"><span class="nav-index">08</span><span class="nav-label"><strong>契合</strong><small>Research Fit</small></span></a>
+    <a href="#conclusion"><span class="nav-index">09</span><span class="nav-label"><strong>总结</strong><small>Conclusion</small></span></a>
   </div>
   <div class="nav-foot"><span class="nav-foot-line"></span><p>Self-triggered information planning.</p></div>
 </aside>
@@ -844,7 +858,7 @@ retrievals = interpolate_budget(
 
 html(
     f"""
-<article class="wide-panel">
+<article class="wide-panel budget-panel">
   <p class="eyebrow">Budget Adaptivity Slider</p>
   <h3>模型不会机械耗尽预算</h3>
   <div class="grid grid-2">
@@ -947,6 +961,7 @@ html(
 
 html(
     f"""
+<span id="fit" class="anchor"></span>
 <section class="section">
   <div class="section-head">
     <p class="eyebrow">Research Fit</p>
@@ -968,6 +983,7 @@ html(
 
 html(
     f"""
+<span id="conclusion" class="anchor"></span>
 <section class="section">
   <div class="wide-panel">
     <p class="eyebrow">Conclusion</p>
