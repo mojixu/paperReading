@@ -7,8 +7,8 @@ import streamlit as st
 
 
 st.set_page_config(
-    page_title="GRIP Insight",
-    page_icon="G",
+    page_title="徐敬研 | GRIP Insight",
+    page_icon="🎓",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -33,6 +33,41 @@ METRICS = {
     "budget10_retrievals": 1.62,
 }
 
+TRAJECTORY_CASES = {
+    "开放域问答": {
+        "question": "Question: Which evidence is missing before answering?",
+        "steps": [
+            ("[INTERMEDIARY]", "模型识别当前问题需要外部事实证据。"),
+            ("[RETRIEVE]", "query = 'entity relation supporting evidence'"),
+            ("Evidence", "检索到相关段落，用于补足事实链。"),
+            ("[ANSWER]", "基于证据生成最终回答。"),
+            ("[SOLVED]", "证据足够，终止轨迹。"),
+        ],
+    },
+    "多跳问答": {
+        "question": "Question: A requires B, and B depends on C. What is the final answer?",
+        "steps": [
+            ("[INTERMEDIARY]", "模型先识别第一跳实体关系仍不完整。"),
+            ("[RETRIEVE]", "query = 'A relation B'"),
+            ("Evidence", "获得第一跳证据后，暴露第二跳信息缺口。"),
+            ("[RETRIEVE]", "query = 'B relation C'"),
+            ("Evidence", "获得第二跳证据并完成证据整合。"),
+            ("[ANSWER]", "输出最终答案。"),
+            ("[SOLVED]", "停止继续检索。"),
+        ],
+    },
+    "软件工程智能体": {
+        "question": "Developer Question: 为什么这个 PR 建议修改 API 调用？",
+        "steps": [
+            ("[INTERMEDIARY]", "需要确认 API 版本、历史 Issue 和文档变更。"),
+            ("[RETRIEVE]", "query = 'deprecated API pull request issue'"),
+            ("Evidence", "文档显示旧 API 已弃用，历史 PR 提到兼容性问题。"),
+            ("[ANSWER]", "该修改是为了避免调用已弃用 API，并提升兼容性。"),
+            ("[SOLVED]", "终止。"),
+        ],
+    },
+}
+
 
 def html(block: str) -> None:
     cleaned = dedent(block).strip()
@@ -55,10 +90,11 @@ def list_items(items: list[str]) -> str:
 
 def card(title: str, body: str, eyebrow: str = "") -> str:
     eyebrow_html = f'<p class="eyebrow">{eyebrow}</p>' if eyebrow else ""
+    title_class = "token-title" if title.startswith("[") else ""
     return f"""
     <article class="card">
       {eyebrow_html}
-      <h3>{title}</h3>
+      <h3 class="{title_class}">{title}</h3>
       <p>{body}</p>
     </article>
     """
@@ -72,6 +108,25 @@ def bar_row(label: str, value: float, maximum: float, color: str, suffix: str = 
       <div class="bar-label"><span>{label}</span><strong>{shown}</strong></div>
       <div class="bar-track"><div class="bar-fill" style="width:{width:.1f}%; background:{color};"></div></div>
     </div>
+    """
+
+
+def trajectory_html(case_name: str, case: dict) -> str:
+    steps_html = "".join(
+        f"""
+        <article class="trajectory-step">
+          <span class="trajectory-token {'plain-token' if not token.startswith("[") else ''}">{token}</span>
+          <p>{text}</p>
+        </article>
+        """
+        for token, text in case["steps"]
+    )
+    return f"""
+    <article class="wide-panel trajectory-panel">
+      <p class="eyebrow">{case_name}</p>
+      <h3>{case["question"]}</h3>
+      <div class="trajectory-grid">{steps_html}</div>
+    </article>
     """
 
 
@@ -208,6 +263,15 @@ a { color: inherit; text-decoration: none; }
   padding: 0.15rem 0;
 }
 
+.navlinks::before {
+  content: "READING PATH";
+  margin: 0.25rem 0 0.45rem 0.55rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
 .navlinks a {
   display: flex;
   align-items: center;
@@ -229,6 +293,14 @@ a { color: inherit; text-decoration: none; }
   transform: translateX(2px);
 }
 
+.navlinks a:focus,
+.navlinks a:active {
+  color: var(--red);
+  border-color: rgba(140, 21, 21, 0.22);
+  background: rgba(140, 21, 21, 0.09);
+  outline: none;
+}
+
 .nav-index {
   display: inline-grid;
   flex: 0 0 auto;
@@ -245,6 +317,12 @@ a { color: inherit; text-decoration: none; }
 }
 
 .navlinks a:hover .nav-index {
+  background: var(--red);
+  color: white;
+}
+
+.navlinks a:focus .nav-index,
+.navlinks a:active .nav-index {
   background: var(--red);
   color: white;
 }
@@ -287,6 +365,10 @@ a { color: inherit; text-decoration: none; }
   color: var(--muted);
   font-size: 0.7rem;
   line-height: 1.55;
+}
+
+.nav-foot strong {
+  color: var(--ink);
 }
 
 .hero {
@@ -356,6 +438,16 @@ a { color: inherit; text-decoration: none; }
   font-size: 1.08rem;
 }
 
+.hero-claim {
+  margin-top: 1.2rem;
+  padding: 0.95rem 1.1rem;
+  border-left: 4px solid var(--gold);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-weight: 800;
+}
+
 .hero-profile {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -406,9 +498,25 @@ a { color: inherit; text-decoration: none; }
   animation: drift 5.4s ease-in-out infinite;
 }
 
-.token-trail span:nth-child(2) { animation-delay: .4s; }
-.token-trail span:nth-child(3) { animation-delay: .8s; }
-.token-trail span:nth-child(4) { animation-delay: 1.2s; }
+.token-trail i {
+  align-self: center;
+  color: rgba(255, 255, 255, 0.45);
+  font-style: normal;
+  font-weight: 900;
+}
+
+.token-trail span:nth-of-type(2),
+.token-trail span:nth-of-type(3),
+.token-trail span:nth-of-type(5),
+.token-trail span:nth-of-type(6) {
+  color: #F6E8BF;
+}
+
+.token-trail span:nth-of-type(2) { animation-delay: .4s; }
+.token-trail span:nth-of-type(3) { animation-delay: .8s; }
+.token-trail span:nth-of-type(4) { animation-delay: 1.2s; }
+.token-trail span:nth-of-type(5) { animation-delay: 1.6s; }
+.token-trail span:nth-of-type(6) { animation-delay: 2s; }
 
 @keyframes drift {
   0%, 100% { transform: translateY(0); opacity: .72; }
@@ -420,6 +528,10 @@ a { color: inherit; text-decoration: none; }
   margin: 0 auto;
   padding: 4.6rem 0 0.6rem;
   scroll-margin-top: 1.2rem;
+}
+
+.compact-section {
+  padding-top: 1.2rem;
 }
 
 .section-head {
@@ -468,6 +580,20 @@ a { color: inherit; text-decoration: none; }
   padding: 1.35rem;
 }
 
+.card ul {
+  margin: 0.65rem 0 0;
+  padding-left: 1.15rem;
+  color: var(--muted);
+}
+
+.card li {
+  margin: 0.28rem 0;
+}
+
+.card li::marker {
+  color: var(--red);
+}
+
 .card h3, .lit-card h3, .wide-panel h3, .metric-card h3 {
   margin: 0 0 0.65rem;
   color: var(--ink);
@@ -477,6 +603,67 @@ a { color: inherit; text-decoration: none; }
 .card p, .lit-card p, .wide-panel p, .metric-card p {
   margin: 0;
   color: var(--muted);
+}
+
+.token-title {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.28rem 0.56rem;
+  border: 1px solid rgba(140, 21, 21, 0.16);
+  border-radius: 10px;
+  background: rgba(140, 21, 21, 0.08);
+  color: var(--red) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 1rem !important;
+  letter-spacing: 0;
+}
+
+.reviewer-path {
+  background:
+    linear-gradient(135deg, rgba(255, 253, 248, 0.96), rgba(248, 245, 239, 0.9)),
+    radial-gradient(circle at 0% 0%, rgba(140, 21, 21, 0.08), transparent 18rem);
+}
+
+.reviewer-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.path-item {
+  display: grid;
+  gap: 0.22rem;
+  min-height: 7rem;
+  padding: 1rem;
+  border: 1px solid rgba(17, 24, 39, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.54);
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+
+.path-item:hover,
+.path-item:focus {
+  transform: translateY(-2px);
+  border-color: rgba(140, 21, 21, 0.24);
+  background: rgba(140, 21, 21, 0.06);
+  outline: none;
+}
+
+.path-item strong {
+  color: var(--red);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.path-item span {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.path-item small {
+  color: var(--muted);
+  font-weight: 700;
 }
 
 .pill {
@@ -547,6 +734,33 @@ a { color: inherit; text-decoration: none; }
   margin: 1rem auto 0;
 }
 
+.stSlider {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1rem 1.2rem 0.4rem;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 253, 248, 0.88);
+  box-shadow: 0 16px 42px rgba(17, 24, 39, 0.06);
+}
+
+.stSlider label {
+  display: none !important;
+}
+
+.stSelectbox {
+  max-width: 1180px;
+  margin: 0 auto 1rem;
+}
+
+.stSelectbox label {
+  display: none !important;
+}
+
+.stSelectbox > div {
+  border-radius: 18px;
+}
+
 .bar-row {
   margin: 1.05rem 0;
 }
@@ -583,6 +797,59 @@ a { color: inherit; text-decoration: none; }
   color: var(--muted);
 }
 
+.source-note {
+  margin-top: 0.85rem !important;
+  color: rgba(95, 102, 115, 0.82) !important;
+  font-size: 0.82rem !important;
+  line-height: 1.65 !important;
+}
+
+.trajectory-panel {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.trajectory-panel h3 {
+  margin-bottom: 1rem;
+}
+
+.trajectory-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.trajectory-step {
+  display: grid;
+  grid-template-columns: minmax(9rem, 14rem) 1fr;
+  gap: 1rem;
+  align-items: start;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(17, 24, 39, 0.09);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.trajectory-token {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.28rem 0.56rem;
+  border-radius: 10px;
+  background: rgba(140, 21, 21, 0.08);
+  color: var(--red);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-weight: 900;
+}
+
+.trajectory-token.plain-token {
+  background: rgba(201, 162, 39, 0.12);
+  color: #7A5B00;
+}
+
+.trajectory-step p {
+  margin: 0;
+  color: var(--muted);
+}
+
 .lit-card {
   padding: 1.25rem;
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
@@ -600,6 +867,75 @@ a { color: inherit; text-decoration: none; }
   max-height: 0;
   opacity: 0;
   transition: max-height .24s ease, opacity .24s ease;
+}
+
+.lit-works {
+  margin-top: 0.7rem !important;
+  font-size: 0.92rem;
+}
+
+.compare-table {
+  width: 100%;
+  margin-top: 1rem;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 14px;
+  font-size: 0.95rem;
+}
+
+.compare-table th,
+.compare-table td {
+  padding: 0.85rem 0.95rem;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.09);
+  text-align: left;
+}
+
+.compare-table th {
+  color: var(--red);
+  background: rgba(140, 21, 21, 0.06);
+  font-weight: 900;
+}
+
+.compare-table td:first-child {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.compare-table tr:last-child td {
+  border-bottom: none;
+}
+
+.se-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.se-flow span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.35rem;
+  padding: 0.55rem 0.72rem;
+  border-radius: 999px;
+  border: 1px solid rgba(17, 24, 39, 0.09);
+  background: #F3F0E8;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 850;
+}
+
+.se-flow span.highlight {
+  background: rgba(140, 21, 21, 0.1);
+  color: var(--red);
+  border-color: rgba(140, 21, 21, 0.22);
+}
+
+.se-flow i {
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 900;
 }
 
 .lit-card:focus .details,
@@ -650,10 +986,14 @@ a { color: inherit; text-decoration: none; }
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.35rem;
   }
+  .navlinks::before {
+    grid-column: 1 / -1;
+  }
   .navlinks a { min-height: 2.65rem; }
   .nav-foot { display: none; }
   .hero { min-height: auto; }
   .hero-profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .reviewer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
@@ -666,6 +1006,13 @@ a { color: inherit; text-decoration: none; }
   .nav-label small { display: none; }
   .hero-profile { grid-template-columns: 1fr; }
   .token-trail span { max-width: 100%; }
+  .token-trail i { display: none; }
+  .reviewer-grid { grid-template-columns: 1fr; }
+  .path-item { min-height: auto; }
+  .trajectory-step { grid-template-columns: 1fr; }
+  .matrix-panel { overflow-x: auto; }
+  .compare-table { min-width: 560px; }
+  .se-flow i { display: none; }
   .lit-card .details { max-height: none; opacity: 1; margin-top: 0.8rem; }
 }
 </style>
@@ -680,17 +1027,20 @@ html(
     <span class="brand-text"><strong>GRIP Insight</strong><small>Reading Map</small></span>
   </a>
   <div class="navlinks">
-    <a href="#overview"><span class="nav-index">01</span><span class="nav-label"><strong>概览</strong><small>Overview</small></span></a>
-    <a href="#problem"><span class="nav-index">02</span><span class="nav-label"><strong>问题</strong><small>Problem</small></span></a>
-    <a href="#method"><span class="nav-index">03</span><span class="nav-label"><strong>方法</strong><small>Method</small></span></a>
-    <a href="#training"><span class="nav-index">04</span><span class="nav-label"><strong>训练</strong><small>Training</small></span></a>
-    <a href="#experiments"><span class="nav-index">05</span><span class="nav-label"><strong>实验</strong><small>Experiments</small></span></a>
-    <a href="#reflection"><span class="nav-index">06</span><span class="nav-label"><strong>思考</strong><small>Reflection</small></span></a>
-    <a href="#review"><span class="nav-index">07</span><span class="nav-label"><strong>综述</strong><small>Literature</small></span></a>
-    <a href="#fit"><span class="nav-index">08</span><span class="nav-label"><strong>契合</strong><small>Research Fit</small></span></a>
-    <a href="#conclusion"><span class="nav-index">09</span><span class="nav-label"><strong>总结</strong><small>Conclusion</small></span></a>
+    <a href="#reviewer-path"><span class="nav-index">01</span><span class="nav-label"><strong>速览</strong><small>For Reviewers</small></span></a>
+    <a href="#overview"><span class="nav-index">02</span><span class="nav-label"><strong>概览</strong><small>Overview</small></span></a>
+    <a href="#problem"><span class="nav-index">03</span><span class="nav-label"><strong>问题</strong><small>Problem</small></span></a>
+    <a href="#method"><span class="nav-index">04</span><span class="nav-label"><strong>方法</strong><small>Method</small></span></a>
+    <a href="#trajectory"><span class="nav-index">05</span><span class="nav-label"><strong>轨迹</strong><small>Trajectory</small></span></a>
+    <a href="#training"><span class="nav-index">06</span><span class="nav-label"><strong>训练</strong><small>Training</small></span></a>
+    <a href="#experiments"><span class="nav-index">07</span><span class="nav-label"><strong>实验</strong><small>Experiments</small></span></a>
+    <a href="#budget"><span class="nav-index">08</span><span class="nav-label"><strong>预算</strong><small>Budget</small></span></a>
+    <a href="#reflection"><span class="nav-index">09</span><span class="nav-label"><strong>思考</strong><small>Reflection</small></span></a>
+    <a href="#review"><span class="nav-index">10</span><span class="nav-label"><strong>综述</strong><small>Literature</small></span></a>
+    <a href="#fit"><span class="nav-index">11</span><span class="nav-label"><strong>契合</strong><small>Research Fit</small></span></a>
+    <a href="#conclusion"><span class="nav-index">12</span><span class="nav-label"><strong>总结</strong><small>Conclusion</small></span></a>
   </div>
-  <div class="nav-foot"><span class="nav-foot-line"></span><p>Self-triggered information planning.</p></div>
+  <div class="nav-foot"><span class="nav-foot-line"></span><p><strong>徐敬研</strong><br>BJUT · Intelligent Software Engineering</p></div>
 </aside>
 <span id="top" class="anchor"></span>
 <section class="hero">
@@ -702,6 +1052,7 @@ html(
       本页面基于论文《Retrieval as Generation: A Unified Framework with Self-Triggered Information Planning》，
       以交互式方式重构其研究动机、方法框架、实验发现与个人思考。
     </p>
+    <p class="hero-claim">我的理解：GRIP 的核心价值不是提升检索次数，而是把信息需求管理变成可学习的生成策略。</p>
     <p><strong>The future of RAG is not retrieving more, but knowing when and why to retrieve.</strong></p>
     <div class="hero-profile">
       <div class="profile-item"><span>姓名</span><strong>{APPLICANT["name"]}</strong></div>
@@ -710,10 +1061,36 @@ html(
       <div class="profile-item"><span>邮箱</span><strong>{APPLICANT["email"]}</strong></div>
     </div>
     <div class="token-trail">
+      <span>Question</span>
+      <i>→</i>
       <span>[INTERMEDIARY]</span>
+      <i>→</i>
       <span>[RETRIEVE]</span>
+      <i>→</i>
+      <span>Evidence</span>
+      <i>→</i>
       <span>[ANSWER]</span>
+      <i>→</i>
       <span>[SOLVED]</span>
+    </div>
+  </div>
+</section>
+"""
+)
+
+html(
+    """
+<section id="reviewer-path" class="section compact-section reviewer-section">
+  <div class="wide-panel reviewer-path">
+    <p class="eyebrow">For Reviewers</p>
+    <h3>3 分钟快速浏览路径</h3>
+    <p>如果只快速浏览，请优先看这五处：问题、方法、实验、思考与方向契合。</p>
+    <div class="reviewer-grid">
+      <a href="#problem" class="path-item"><strong>01</strong><span>论文核心问题</span><small>一次性检索不足</small></a>
+      <a href="#method" class="path-item"><strong>02</strong><span>GRIP 方法框架</span><small>四个控制符</small></a>
+      <a href="#experiments" class="path-item"><strong>03</strong><span>实验关键发现</span><small>41.0 分，1.24 次检索</small></a>
+      <a href="#reflection" class="path-item"><strong>04</strong><span>批判性思考</span><small>优势与局限</small></a>
+      <a href="#fit" class="path-item"><strong>05</strong><span>方向契合</span><small>软件工程智能体</small></a>
     </div>
   </div>
 </section>
@@ -803,6 +1180,26 @@ html(
 )
 
 html(
+    """
+<section id="trajectory" class="section compact-section">
+  <div class="section-head">
+    <p class="eyebrow">Trajectory Simulator</p>
+    <h2>GRIP 轨迹模拟器</h2>
+    <p>选择不同问题类型，观察模型如何在生成轨迹中决定是否检索、检索什么以及何时停止。</p>
+  </div>
+</section>
+"""
+)
+
+case_name = st.selectbox(
+    "选择一个 GRIP 轨迹示例",
+    list(TRAJECTORY_CASES.keys()),
+    index=2,
+    label_visibility="collapsed",
+)
+html(trajectory_html(case_name, TRAJECTORY_CASES[case_name]))
+
+html(
     f"""
 <section id="training" class="section">
   <div class="section-head">
@@ -840,7 +1237,7 @@ html(
     <article class="metric-card"><span>Average Score</span><strong>{METRICS["grip_score"]:.1f}</strong><p>GRIP 在五个 QA 基准上的平均表现。</p></article>
     <article class="metric-card"><span>Average Retrievals</span><strong>{METRICS["grip_retrievals"]:.2f}</strong><p>平均每个问题仅触发约 1.24 次检索。</p></article>
     <article class="metric-card"><span>Fewer Retrievals</span><strong>{METRICS["fewer_retrievals"]:.1f}%</strong><p>相较 R1-Searcher 的检索次数降低比例。</p></article>
-    <article class="metric-card"><span>Performance Level</span><strong>≈ GPT-4o</strong><p>41.0 接近 GPT-4o 的 41.4。</p></article>
+    <article class="metric-card"><span>Score Gap</span><strong>-0.4</strong><p>GRIP 41.0，接近 GPT-4o 的 41.4。</p></article>
   </div>
   <div class="grid grid-2" style="margin-top:1rem;">
     <article class="wide-panel">
@@ -856,11 +1253,31 @@ html(
       <p>更少检索没有牺牲性能，说明 GRIP 学到的是任务感知的检索深度，而不是机械式深搜堆叠。</p>
     </article>
   </div>
+  <p class="source-note">Source: metrics summarized from the written reading report and the selected GRIP paper.</p>
 </section>
 """
 )
 
-budget = st.slider("检索预算 B", min_value=3, max_value=10, value=3, step=1)
+html(
+    """
+<section class="section compact-section" id="budget">
+  <div class="section-head">
+    <p class="eyebrow">Budget Simulator</p>
+    <h2>检索预算模拟器</h2>
+    <p>拖动预算，观察分数与实际检索次数如何变化。</p>
+  </div>
+</section>
+"""
+)
+
+budget = st.slider(
+    "检索预算 B",
+    min_value=3,
+    max_value=10,
+    value=3,
+    step=1,
+    label_visibility="collapsed",
+)
 score = interpolate_budget(budget, METRICS["budget3_score"], METRICS["budget10_score"])
 retrievals = interpolate_budget(
     budget,
@@ -875,9 +1292,9 @@ html(
   <h3>模型不会机械耗尽预算</h3>
   <div class="grid grid-2">
     <article class="metric-card"><span>Estimated Score</span><strong>{score:.1f}</strong><p>当前预算 B = {budget}</p></article>
-    <article class="metric-card"><span>Actual Retrievals</span><strong>{retrievals:.2f}</strong><p>B=3 到 B=10 线性插值展示。</p></article>
+    <article class="metric-card"><span>Actual Retrievals</span><strong>{retrievals:.2f}</strong><p>基于 B=3 与 B=10 两个端点做趋势插值。</p></article>
   </div>
-  <p class="budget-note">当检索预算 B 从 3 增加到 10 时，模型得分从 41.0 提升到 41.8，实际检索次数仅从 1.24 增至 1.62。它根据问题难度自适应检索，在需要时检索，在足够时停止。</p>
+  <p class="budget-note">当检索预算 B 从 3 增加到 10 时，模型得分从 41.0 提升到 41.8，实际检索次数仅从 1.24 增至 1.62。它根据问题难度自适应检索，在需要时检索，在足够时停止。基于论文报告的两个端点结果进行可视化插值，仅用于展示趋势，不代表逐预算实测值。注：滑条中间值为可视化插值，不代表论文逐预算实测结果。</p>
 </article>
 """
 )
@@ -946,8 +1363,8 @@ for item in quadrants:
       <p class="eyebrow">{item["cn"]}</p>
       <h3>{item["title"]}</h3>
       <p>{" ".join(pill(trait) for trait in item["traits"])}</p>
+      <p class="lit-works"><strong>代表工作：</strong>{item["works"]}</p>
       <div class="details">
-        <p><strong>代表工作：</strong>{item["works"]}</p>
         <p><strong>适用场景：</strong>{item["use"]}</p>
         <p><strong>主要风险：</strong>{item["risk"]}</p>
       </div>
@@ -965,6 +1382,23 @@ html(
   <div class="grid grid-2">
     {lit_html}
   </div>
+  <article class="wide-panel matrix-panel" style="margin-top:1rem;">
+    <p class="eyebrow">Comparison Matrix</p>
+    <h3>动态知识更新路线对比</h3>
+    <table class="compare-table">
+      <thead>
+        <tr><th>方法</th><th>更新速度</th><th>融合深度</th><th>可回滚</th><th>部署成本</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>持续预训练</td><td>低</td><td>高</td><td>低</td><td>高</td></tr>
+        <tr><td>RAG</td><td>高</td><td>中</td><td>高</td><td>中</td></tr>
+        <tr><td>知识编辑</td><td>中</td><td>中高</td><td>中</td><td>中</td></tr>
+        <tr><td>测试时训练</td><td>高</td><td>中</td><td>高</td><td>高</td></tr>
+      </tbody>
+    </table>
+    <p class="budget-note">真正困难的是同时满足深度融合、低延迟、可回滚和大规模更新，现有方法通常只能兼得其中两三项。</p>
+  </article>
+  <p class="source-note">Source: literature categories summarized from the written review section.</p>
 </section>
 """
 )
@@ -982,6 +1416,26 @@ html(
     {card("检索即决策能力", "智能体需要主动判断何时查文档、查代码、查日志、查历史提交，而不是被动等待外部流程触发。")}
     {card("可解释工程轨迹", "GRIP 式控制轨迹可以记录为什么检索、检索了什么、如何停止，便于调试、审计和复盘。")}
   </div>
+  <article class="wide-panel se-flow-panel" style="margin-top:1rem;">
+    <p class="eyebrow">From GRIP to Software Engineering Agents</p>
+    <h3>从 GRIP 到软件工程智能体</h3>
+    <p>在软件工程任务中，检索不是附加模块，而是智能体完成可信决策的一部分。</p>
+    <div class="se-flow">
+      <span>Developer Question</span>
+      <i>→</i>
+      <span>Code Repository</span>
+      <i>→</i>
+      <span>Issue / PR History</span>
+      <i>→</i>
+      <span>API Documentation</span>
+      <i>→</i>
+      <span>Runtime Logs</span>
+      <i>→</i>
+      <span class="highlight">Agent Evidence Planning</span>
+      <i>→</i>
+      <span>Auditable Answer</span>
+    </div>
+  </article>
   <article class="wide-panel" style="margin-top:1rem;">
     <h3>后续研究思路</h3>
     <p>{pill("面向软件工程智能体的自触发检索规划")} {pill("代码审查中的证据选择与可信解释")} {pill("企业知识库场景下的动态 RAG")} {pill("多检索器协同的软件缺陷定位")} {pill("长上下文代码任务的证据压缩")}</p>
