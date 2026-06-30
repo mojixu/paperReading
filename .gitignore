@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+__pycache__/
+*.py[cod]
 
 # debug
 npm-debug.log*
@@ -30,6 +32,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 dev-server.*.log
+streamlit-server.*.log
 
 # local agent notes
 AGENTS.md
