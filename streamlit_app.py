@@ -97,16 +97,23 @@ html { scroll-behavior: smooth; }
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
 }
 
-[data-testid="stHeader"] {
-  background: rgba(248, 245, 239, 0.72);
-  backdrop-filter: blur(16px);
+[data-testid="stHeader"],
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+[data-testid="stStatusWidget"],
+.stDeployButton,
+header {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  visibility: hidden !important;
 }
 
 [data-testid="stSidebar"], #MainMenu, footer { visibility: hidden; }
 
 .block-container {
   max-width: 1180px;
-  padding-top: 1.2rem;
+  padding-top: 0.75rem;
   padding-bottom: 4rem;
 }
 
