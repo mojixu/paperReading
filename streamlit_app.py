@@ -37,7 +37,7 @@ METRICS = {
 def html(block: str) -> None:
     cleaned = dedent(block).strip()
     cleaned = re.sub(r"(?m)^[ \t]{4,}(?=</?[A-Za-z])", "", cleaned)
-    st.html(cleaned)
+    st.markdown(cleaned, unsafe_allow_html=True)
 
 
 def interpolate_budget(value: int, start: float, end: float) -> float:
@@ -722,8 +722,7 @@ html(
 
 html(
     f"""
-<span id="overview" class="anchor"></span>
-<section class="section">
+<section id="overview" class="section">
   <div class="section-head">
     <p class="eyebrow">Overview</p>
     <h2>论文概览</h2>
@@ -743,8 +742,7 @@ html(
 
 html(
     f"""
-<span id="problem" class="anchor"></span>
-<section class="section">
+<section id="problem" class="section">
   <div class="section-head">
     <p class="eyebrow">Problem</p>
     <h2>问题定义：检索不是一次性前处理</h2>
@@ -779,8 +777,7 @@ control_cards = [
 
 html(
     f"""
-<span id="method" class="anchor"></span>
-<section class="section">
+<section id="method" class="section">
   <div class="section-head">
     <p class="eyebrow">Method</p>
     <h2>方法框架：把检索写进解码语言</h2>
@@ -807,8 +804,7 @@ html(
 
 html(
     f"""
-<span id="training" class="anchor"></span>
-<section class="section">
+<section id="training" class="section">
   <div class="section-head">
     <p class="eyebrow">Training</p>
     <h2>训练流程：先学轨迹，再学取舍</h2>
@@ -834,8 +830,7 @@ html(
 
 html(
     f"""
-<span id="experiments" class="anchor"></span>
-<section class="section">
+<section id="experiments" class="section">
   <div class="section-head">
     <p class="eyebrow">Experiments</p>
     <h2>实验评估：更少检索，更强规划</h2>
@@ -889,8 +884,7 @@ html(
 
 html(
     f"""
-<span id="reflection" class="anchor"></span>
-<section class="section">
+<section id="reflection" class="section">
   <div class="section-head">
     <p class="eyebrow">Reflection</p>
     <h2>批判性思考</h2>
@@ -962,8 +956,7 @@ for item in quadrants:
 
 html(
     f"""
-<span id="review" class="anchor"></span>
-<section class="section">
+<section id="review" class="section">
   <div class="section-head">
     <p class="eyebrow">Literature Map</p>
     <h2>文献综述地图</h2>
@@ -978,8 +971,7 @@ html(
 
 html(
     f"""
-<span id="fit" class="anchor"></span>
-<section class="section">
+<section id="fit" class="section">
   <div class="section-head">
     <p class="eyebrow">Research Fit</p>
     <h2>与智能化软件工程方向的契合</h2>
@@ -1000,8 +992,7 @@ html(
 
 html(
     f"""
-<span id="conclusion" class="anchor"></span>
-<section class="section">
+<section id="conclusion" class="section">
   <div class="wide-panel">
     <p class="eyebrow">Conclusion</p>
     <h3>总结</h3>
