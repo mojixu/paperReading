@@ -356,25 +356,38 @@ a { color: inherit; text-decoration: none; }
   font-size: 1.08rem;
 }
 
-.hero-actions {
-  display: flex;
-  gap: 0.8rem;
-  flex-wrap: wrap;
+.hero-profile {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  max-width: 900px;
   margin-top: 2rem;
 }
 
-.hero-actions a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2.8rem;
-  padding: 0.7rem 1rem;
-  border-radius: 999px;
+.profile-item {
+  min-height: 5rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.profile-item span {
+  display: block;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.78rem;
   font-weight: 800;
 }
 
-.primary-action { background: white; color: var(--navy); }
-.secondary-action { border: 1px solid rgba(255,255,255,0.28); color: white; }
+.profile-item strong {
+  display: block;
+  margin-top: 0.3rem;
+  color: white;
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
 
 .token-trail {
   display: flex;
@@ -640,6 +653,7 @@ a { color: inherit; text-decoration: none; }
   .navlinks a { min-height: 2.65rem; }
   .nav-foot { display: none; }
   .hero { min-height: auto; }
+  .hero-profile { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
@@ -650,6 +664,7 @@ a { color: inherit; text-decoration: none; }
   .navlinks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .navlinks a { font-size: 0.82rem; padding: 0.42rem 0.5rem; }
   .nav-label small { display: none; }
+  .hero-profile { grid-template-columns: 1fr; }
   .token-trail span { max-width: 100%; }
   .lit-card .details { max-height: none; opacity: 1; margin-top: 0.8rem; }
 }
@@ -688,9 +703,11 @@ html(
       以交互式方式重构其研究动机、方法框架、实验发现与个人思考。
     </p>
     <p><strong>The future of RAG is not retrieving more, but knowing when and why to retrieve.</strong></p>
-    <div class="hero-actions">
-      <a class="primary-action" href="#overview">进入阅读报告</a>
-      <a class="secondary-action" href="#method">查看方法框架</a>
+    <div class="hero-profile">
+      <div class="profile-item"><span>姓名</span><strong>{APPLICANT["name"]}</strong></div>
+      <div class="profile-item"><span>学校</span><strong>{APPLICANT["school"]}</strong></div>
+      <div class="profile-item"><span>方向</span><strong>{APPLICANT["direction"]}</strong></div>
+      <div class="profile-item"><span>邮箱</span><strong>{APPLICANT["email"]}</strong></div>
     </div>
     <div class="token-trail">
       <span>[INTERMEDIARY]</span>
