@@ -114,7 +114,7 @@ header {
 .block-container {
   max-width: none;
   padding-top: 1rem;
-  padding-left: 15rem;
+  padding-left: 16rem;
   padding-right: clamp(1.25rem, 4vw, 4rem);
   padding-bottom: 4rem;
 }
@@ -124,24 +124,41 @@ a { color: inherit; text-decoration: none; }
 
 .side-nav {
   position: fixed;
-  left: 1rem;
+  left: clamp(0.9rem, 1.4vw, 1.25rem);
   top: 1rem;
   bottom: 1rem;
   z-index: 50;
   display: flex;
-  width: 12.5rem;
+  width: 13.25rem;
   flex-direction: column;
   justify-content: space-between;
-  gap: 1.25rem;
-  padding: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.32);
-  border-radius: 24px;
+  gap: 1rem;
+  padding: 0.95rem;
+  overflow-y: auto;
+  scrollbar-width: none;
+  border: 1px solid rgba(17, 24, 39, 0.1);
+  border-radius: 22px;
   background:
-    radial-gradient(circle at 30% 0%, rgba(201, 162, 39, 0.18), transparent 11rem),
-    rgba(11, 16, 32, 0.9);
-  color: white;
-  box-shadow: 0 18px 50px rgba(11, 16, 32, 0.18);
+    linear-gradient(180deg, rgba(255, 253, 248, 0.96), rgba(248, 245, 239, 0.9)),
+    radial-gradient(circle at 18% 0%, rgba(201, 162, 39, 0.16), transparent 11rem);
+  color: var(--ink);
+  box-shadow: 0 24px 70px rgba(17, 24, 39, 0.12);
   backdrop-filter: blur(16px);
+}
+
+.side-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.side-nav::before {
+  content: "";
+  position: absolute;
+  top: 0.8rem;
+  left: 0.95rem;
+  right: 0.95rem;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--red), var(--gold));
 }
 
 .brand {
@@ -149,6 +166,9 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   gap: 0.7rem;
   min-width: 0;
+  padding: 0.75rem 0.35rem 0.9rem;
+  border-bottom: 1px solid rgba(17, 24, 39, 0.08);
+  color: var(--ink);
   font-weight: 800;
   letter-spacing: 0;
 }
@@ -157,37 +177,116 @@ a { color: inherit; text-decoration: none; }
   flex: 0 0 auto;
   display: inline-grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 14px;
   background: linear-gradient(135deg, var(--red), var(--gold));
+  color: white;
+  box-shadow: 0 10px 24px rgba(140, 21, 21, 0.2);
+}
+
+.brand-text {
+  display: grid;
+  min-width: 0;
+}
+
+.brand-text strong {
+  line-height: 1.1;
+}
+
+.brand-text small {
+  margin-top: 0.18rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .navlinks {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.2rem;
+  padding: 0.15rem 0;
 }
 
 .navlinks a {
-  display: block;
-  padding: 0.62rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3rem;
+  padding: 0.52rem 0.55rem;
+  border: 1px solid transparent;
   border-radius: 14px;
-  color: rgba(255, 255, 255, 0.82);
+  color: #374151;
   font-size: 0.9rem;
   font-weight: 750;
+  transition: background .16s ease, border-color .16s ease, color .16s ease, transform .16s ease;
 }
 
 .navlinks a:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.12);
+  color: var(--red);
+  border-color: rgba(140, 21, 21, 0.16);
+  background: rgba(140, 21, 21, 0.07);
+  transform: translateX(2px);
 }
 
-.nav-caption {
+.nav-index {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 1.82rem;
+  height: 1.82rem;
+  border: 1px solid rgba(140, 21, 21, 0.16);
+  border-radius: 999px;
+  background: #F3F0E8;
+  color: var(--red);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.navlinks a:hover .nav-index {
+  background: var(--red);
+  color: white;
+}
+
+.nav-label {
+  display: grid;
+  min-width: 0;
+}
+
+.nav-label strong {
+  line-height: 1.15;
+}
+
+.nav-label small {
+  margin-top: 0.12rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.nav-foot {
   margin: 0;
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 0.78rem;
-  line-height: 1.6;
+  padding: 0.8rem 0.75rem;
+  border: 1px solid rgba(201, 162, 39, 0.22);
+  border-radius: 16px;
+  background: rgba(201, 162, 39, 0.08);
+}
+
+.nav-foot-line {
+  display: block;
+  width: 2.4rem;
+  height: 2px;
+  margin-bottom: 0.55rem;
+  border-radius: 999px;
+  background: var(--gold);
+}
+
+.nav-foot p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.55;
 }
 
 .hero {
@@ -519,9 +618,16 @@ a { color: inherit; text-decoration: none; }
     left: auto;
     width: auto;
     margin-bottom: 1rem;
+    padding: 0.85rem;
     border-radius: 22px;
   }
-  .navlinks { gap: 0.2rem; }
+  .navlinks {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+  .navlinks a { min-height: 2.65rem; }
+  .nav-foot { display: none; }
   .hero { min-height: auto; }
 }
 
@@ -530,7 +636,9 @@ a { color: inherit; text-decoration: none; }
   .hero { padding: 3.4rem 1.1rem 3.3rem; }
   .hero-inner { padding: 0 1rem; }
   .grid-3, .grid-4 { grid-template-columns: 1fr; }
-  .navlinks a { font-size: 0.82rem; padding: 0.34rem 0.5rem; }
+  .navlinks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .navlinks a { font-size: 0.82rem; padding: 0.42rem 0.5rem; }
+  .nav-label small { display: none; }
   .token-trail span { max-width: 100%; }
   .lit-card .details { max-height: none; opacity: 1; margin-top: 0.8rem; }
 }
@@ -541,16 +649,19 @@ a { color: inherit; text-decoration: none; }
 html(
     """
 <aside class="side-nav">
-  <a class="brand" href="#top"><span class="brand-mark">G</span><span>GRIP Insight</span></a>
+  <a class="brand" href="#top">
+    <span class="brand-mark">G</span>
+    <span class="brand-text"><strong>GRIP Insight</strong><small>Reading Map</small></span>
+  </a>
   <div class="navlinks">
-    <a href="#overview">概览</a>
-    <a href="#problem">问题</a>
-    <a href="#method">方法</a>
-    <a href="#experiments">实验</a>
-    <a href="#review">综述</a>
-    <a href="#reflection">思考</a>
+    <a href="#overview"><span class="nav-index">01</span><span class="nav-label"><strong>概览</strong><small>Overview</small></span></a>
+    <a href="#problem"><span class="nav-index">02</span><span class="nav-label"><strong>问题</strong><small>Problem</small></span></a>
+    <a href="#method"><span class="nav-index">03</span><span class="nav-label"><strong>方法</strong><small>Method</small></span></a>
+    <a href="#experiments"><span class="nav-index">04</span><span class="nav-label"><strong>实验</strong><small>Experiments</small></span></a>
+    <a href="#review"><span class="nav-index">05</span><span class="nav-label"><strong>综述</strong><small>Review</small></span></a>
+    <a href="#reflection"><span class="nav-index">06</span><span class="nav-label"><strong>思考</strong><small>Reflection</small></span></a>
   </div>
-  <p class="nav-caption">Interactive Research Reading Portfolio</p>
+  <div class="nav-foot"><span class="nav-foot-line"></span><p>Self-triggered information planning.</p></div>
 </aside>
 <span id="top" class="anchor"></span>
 <section class="hero">
