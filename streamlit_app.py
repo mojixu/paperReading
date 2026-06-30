@@ -112,27 +112,33 @@ header {
 [data-testid="stSidebar"], #MainMenu, footer { visibility: hidden; }
 
 .block-container {
-  max-width: 1180px;
-  padding-top: 0.75rem;
+  max-width: none;
+  padding-top: 1rem;
+  padding-left: 15rem;
+  padding-right: clamp(1.25rem, 4vw, 4rem);
   padding-bottom: 4rem;
 }
 
 p, li { line-height: 1.75; }
 a { color: inherit; text-decoration: none; }
 
-.navbar {
-  position: sticky;
-  top: 0.8rem;
+.side-nav {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  bottom: 1rem;
   z-index: 50;
   display: flex;
-  align-items: center;
+  width: 12.5rem;
+  flex-direction: column;
   justify-content: space-between;
-  gap: 1rem;
-  margin: 0 0 1.1rem;
-  padding: 0.75rem 1rem;
+  gap: 1.25rem;
+  padding: 1rem;
   border: 1px solid rgba(255, 255, 255, 0.32);
-  border-radius: 999px;
-  background: rgba(11, 16, 32, 0.74);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 30% 0%, rgba(201, 162, 39, 0.18), transparent 11rem),
+    rgba(11, 16, 32, 0.9);
   color: white;
   box-shadow: 0 18px 50px rgba(11, 16, 32, 0.18);
   backdrop-filter: blur(16px);
@@ -142,11 +148,13 @@ a { color: inherit; text-decoration: none; }
   display: flex;
   align-items: center;
   gap: 0.7rem;
+  min-width: 0;
   font-weight: 800;
   letter-spacing: 0;
 }
 
 .brand-mark {
+  flex: 0 0 auto;
   display: inline-grid;
   place-items: center;
   width: 2rem;
@@ -157,16 +165,17 @@ a { color: inherit; text-decoration: none; }
 
 .navlinks {
   display: flex;
-  gap: 0.45rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .navlinks a {
-  padding: 0.42rem 0.72rem;
-  border-radius: 999px;
+  display: block;
+  padding: 0.62rem 0.75rem;
+  border-radius: 14px;
   color: rgba(255, 255, 255, 0.82);
   font-size: 0.9rem;
+  font-weight: 750;
 }
 
 .navlinks a:hover {
@@ -174,11 +183,20 @@ a { color: inherit; text-decoration: none; }
   background: rgba(255, 255, 255, 0.12);
 }
 
+.nav-caption {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
 .hero {
   position: relative;
   overflow: hidden;
-  margin: 0 calc(50% - 50vw);
-  padding: 5.2rem calc(50vw - 590px) 5rem;
+  min-height: calc(100vh - 2rem);
+  margin: 0;
+  padding: clamp(3rem, 8vw, 5.2rem) clamp(1.2rem, 6vw, 4.5rem) 4.6rem;
+  border-radius: 28px;
   color: white;
   background:
     radial-gradient(circle at 20% 20%, rgba(140, 21, 21, 0.42), transparent 28rem),
@@ -201,9 +219,9 @@ a { color: inherit; text-decoration: none; }
 .hero-inner {
   position: relative;
   z-index: 1;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+  max-width: 980px;
+  margin: 0;
+  padding: 0;
 }
 
 .hero-kicker {
@@ -488,18 +506,30 @@ a { color: inherit; text-decoration: none; }
 }
 
 @media (max-width: 900px) {
+  .block-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
   .grid-3, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .grid-2 { grid-template-columns: 1fr; }
-  .navbar { align-items: flex-start; border-radius: 22px; }
+  .side-nav {
+    position: sticky;
+    top: 0.6rem;
+    bottom: auto;
+    left: auto;
+    width: auto;
+    margin-bottom: 1rem;
+    border-radius: 22px;
+  }
   .navlinks { gap: 0.2rem; }
+  .hero { min-height: auto; }
 }
 
 @media (max-width: 640px) {
   .block-container { padding-left: 1rem; padding-right: 1rem; }
-  .hero { padding: 4rem 0 3.7rem; }
+  .hero { padding: 3.4rem 1.1rem 3.3rem; }
   .hero-inner { padding: 0 1rem; }
   .grid-3, .grid-4 { grid-template-columns: 1fr; }
-  .navbar { position: relative; top: 0; flex-direction: column; }
   .navlinks a { font-size: 0.82rem; padding: 0.34rem 0.5rem; }
   .token-trail span { max-width: 100%; }
   .lit-card .details { max-height: none; opacity: 1; margin-top: 0.8rem; }
@@ -510,7 +540,7 @@ a { color: inherit; text-decoration: none; }
 
 html(
     """
-<nav class="navbar">
+<aside class="side-nav">
   <a class="brand" href="#top"><span class="brand-mark">G</span><span>GRIP Insight</span></a>
   <div class="navlinks">
     <a href="#overview">概览</a>
@@ -520,7 +550,8 @@ html(
     <a href="#review">综述</a>
     <a href="#reflection">思考</a>
   </div>
-</nav>
+  <p class="nav-caption">Interactive Research Reading Portfolio</p>
+</aside>
 <span id="top" class="anchor"></span>
 <section class="hero">
   <div class="hero-inner">
